@@ -46,8 +46,8 @@ export class AppComponent implements OnInit {
     ];
 
     this.itemTypes = [
-      { label: 'Torches', value: 'torch' },
-      { label: 'Haches', value: 'axe' }
+      { label: 'Torche', value: 'torch' },
+      { label: 'Hache', value: 'axe' }
     ];
   }
 

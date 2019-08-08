@@ -24,10 +24,10 @@
     <h2>Données de la case :</h2>
 
     <mat-form-field>
-        <mat-label>Type de case </mat-label>
+        <mat-label>Type de case</mat-label>
         <mat-select [(value)]='caseInWork.type' (selectionChange)='onTypeChange()'>
             <mat-option *ngFor='let type of types' [value]='type.value'>
-                {{type.label}}
+                {{ type.label }}
             </mat-option>
         </mat-select>
     </mat-form-field>
@@ -56,10 +56,21 @@
             <mat-label>Type de l'ennemi</mat-label>
             <mat-select [(value)]='caseInWork.object.type' (selectionChange)='onTypeChange()'>
                 <mat-option *ngFor='let enemyType of enemyTypes' [value]='enemyType.value'>
-                    {{enemyType.label}}
+                    {{ enemyType.label }}
                 </mat-option>
             </mat-select>
         </mat-form-field>
     </div>
 
+    <!-- ITEM -->
+    <div *ngIf='caseInWork.type === "item"'>
+        <mat-form-field>
+            <mat-label>Type d'objet</mat-label>
+            <mat-select [(value)]='caseInWork.object'>
+                <mat-option *ngFor='let itemType of itemTypes' [value]='itemType.value'>
+                    {{ itemType.label }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
 </div>
