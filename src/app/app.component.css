@@ -1,0 +1,20 @@
+div {
+    margin-bottom: 20px;
+}
+
+/* bouton case */
+.bt-case {
+    height: 40px;
+    width: 40px;
+    padding: 5px;
+    margin: 2px;
+    border: solid 1px grey;
+}
+
+.bt-case-selected {
+    height: 40px;
+    width: 40px;
+    padding: 5px;
+    margin: 2px;
+    border: solid 1px red;
+}
