@@ -19,13 +19,13 @@ export class Case {
 
 export class Player {
     visionRange: number;
-    inventory: Map<string, number>;
+    inventory: {};
 
     constructor(itemTypes: SelectItem[]) {
         this.visionRange = 0;
-        this.inventory = new Map();
+        this.inventory = {};
         itemTypes.forEach(element => {
-            this.inventory.set(element.value, 0); 
+            this.inventory[element.value] =  0; 
         });
     }
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Case, Player, Enemy } from './case.model';
 import { SelectItem } from './components/selectitem';
-import { BindingType } from '@angular/compiler';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 
 @Component({
   selector: 'app-root',
@@ -9,6 +9,9 @@ import { BindingType } from '@angular/compiler';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
+
+  author: string;
+  difficulty: string;
 
   widthMap: number;
   heightMap: number;
@@ -23,7 +26,10 @@ export class AppComponent implements OnInit {
 
   types: SelectItem[];
   enemyTypes: SelectItem[];
+  itemInventoryTypes: SelectItem[];
   itemTypes: SelectItem[];
+
+  result: string;
 
   ngOnInit(): void {
     this.heightMap = 5;
@@ -45,9 +51,13 @@ export class AppComponent implements OnInit {
       { label: 'Zombie', value: 'zombie' }
     ];
 
+    this.itemInventoryTypes = [
+      { label: 'Torche', value: 'TORCH' },
+      { label: 'Hache', value: 'AXE' }
+    ];
+
     this.itemTypes = [
-      { label: 'Torche', value: 'torch' },
-      { label: 'Hache', value: 'axe' }
+      { label: 'Hache', value: 'AXE' }
     ];
   }
 
@@ -85,14 +95,14 @@ export class AppComponent implements OnInit {
         break;
       case 'player':
         this.btInWork.innerHTML = 'P';
-        this.caseInWork.object = new Player(this.itemTypes);
+        this.caseInWork.object = new Player(this.itemInventoryTypes);
         break;
       case 'enemy':
         this.btInWork.innerHTML = 'E';
         this.caseInWork.object = new Enemy();
         break;
       case 'exit':
-        this.btInWork.innerHTML = 'E';
+        this.btInWork.innerHTML = 'X';
         this.caseInWork.object = null;
         break;
       case 'obstacle':
@@ -108,5 +118,143 @@ export class AppComponent implements OnInit {
         this.caseInWork.object = null;
         break;
     }
+  }
+
+  controleGenerate() {
+    //if ok 
+    this.generate();
+    // else message d'erreur
+  }
+
+  // fonction de génération du JSON
+  generate() {
+    // l'utilisateur peut modifier une case puis réduire la taille de la map pour la faire disparaitre.
+    // Cependant elle est toujours stockée dans le back.
+    // Donc on récupère d'abord toutes les cases qui sont dans la map finale.
+    const casesInMap = this.cases.filter((x) => x.height < this.heightMap && x.width < this.widthMap);
+
+    // initialisation
+    this.result = '{'
+
+    // difficulté
+    this.result += '"difficulty": "' + this.difficulty + '",';
+
+    // taille
+    this.result += '"width": ' + this.widthMap + ',';
+    this.result += '"height": ' + this.heightMap + ',';
+
+    // joueurs (au moins 1)
+    this.result += '"players": [';
+    const playerCases = casesInMap.filter((x) => x.type === 'player');
+    let firstPlayer = true;
+
+    playerCases.forEach(player => {
+      this.result += firstPlayer ? '{' : ',{';
+      firstPlayer = false;
+
+      this.result += '"x": ' + player.width + ',';
+      this.result += '"y": ' + player.height + ',';
+      this.result += '"visionRange": ' + player.object.visionRange + ',';
+      this.result += '"inventory": {';
+      this.result += '"items": [';
+
+      let firstItem = true;
+      Object.keys(player.object.inventory).forEach(item => {
+        if (player.object.inventory[item] !== 0) {
+          this.result += firstItem ? '{' : ',{';
+          firstItem = false;
+
+          this.result += '"type": "' + item + '",';
+          this.result += '"number": ' + player.object.inventory[item];
+          this.result += '}';
+        }
+      });
+      this.result += ']'; // fin items
+      this.result += '}'; // fin inventory
+      this.result += '}'; // fin joueur
+    });
+
+    // fin des joueurs
+    this.result += '],';
+
+    // ennemis
+    this.result += '"enemies": [';
+    const enemyCases = casesInMap.filter((x) => x.type === 'enemy');
+    let firstEnemy = true;
+
+    enemyCases.forEach(enemy => {
+      this.result += firstEnemy ? '{' : ',{';
+      firstEnemy = false;
+
+      this.result += '"enemyType": "' + enemy.object.type + '",';
+      this.result += '"x": ' + enemy.width + ',';
+      this.result += '"y": ' + enemy.height;
+      this.result += '}';
+    });
+    this.result += '],';
+
+    // sorties
+    this.result += '"exits": [';
+    const exitCases = casesInMap.filter((x) => x.type === 'exit');
+    let firstExit = true;
+
+    exitCases.forEach(exit => {
+      this.result += firstExit ? '{' : ',{';
+      firstExit = false;
+
+      this.result += '"x": ' + exit.width + ',';
+      this.result += '"y": ' + exit.height;
+      this.result += '}';
+    });
+    this.result += '],';
+
+    // obstacles
+    this.result += '"obstacles": [';
+    const obstacleCases = casesInMap.filter((x) => x.type === 'obstacle');
+    let firstObstacle = true;
+
+    obstacleCases.forEach(obstacle => {
+      this.result += firstObstacle ? '{' : ',{';
+      firstObstacle = false;
+
+      this.result += '"x": ' + obstacle.width + ',';
+      this.result += '"y": ' + obstacle.height;
+      this.result += '}';
+    });
+    this.result += '],';
+
+    // torches
+    this.result += '"torches": [';
+    const torchCases = casesInMap.filter((x) => x.type === 'torch');
+    let firstTorch = true;
+
+    torchCases.forEach(obstacle => {
+      this.result += firstTorch ? '{' : ',{';
+      firstTorch = false;
+
+      this.result += '"x": ' + obstacle.width + ',';
+      this.result += '"y": ' + obstacle.height;
+      this.result += '}';
+    });
+    this.result += '],';
+
+    // items
+    this.result += '"items": [';
+    const itemCases = casesInMap.filter((x) => x.type === 'item');
+    let firstItem = true;
+
+    itemCases.forEach(item => {
+      this.result += firstItem ? '{' : ',{';
+      firstItem = false;
+
+      this.result += '"x": ' + item.width + ',';
+      this.result += '"y": ' + item.height;
+      this.result += '}';
+    });
+    this.result += ']';
+
+    this.result += '}';
+
+    console.log(this.result);
   }
 }

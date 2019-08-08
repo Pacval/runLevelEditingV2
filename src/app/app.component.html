@@ -5,6 +5,22 @@
 </div>
 
 <div>
+    <mat-form-field>
+        <input matInput placeholder="Nom de l'auteur" [(ngModel)]='author'>
+    </mat-form-field>
+</div>
+<div>
+    <mat-form-field>
+        <mat-label>Difficulté</mat-label>
+        <mat-select [(value)]="difficulty">
+            <mat-option value="EASY">Facile</mat-option>
+            <mat-option value="MEDIUM">Normal</mat-option>
+            <mat-option value="HARD">Difficile</mat-option>
+        </mat-select>
+    </mat-form-field>
+</div>
+
+<div>
     Nombres de cases :
     <input type='number' id='heightMap' [(ngModel)]='heightMap'>
     &nbsp;
@@ -41,7 +57,7 @@
         </div>
         <div>
             <span>Inventaire</span>
-            <div *ngFor='let itemType of itemTypes'>
+            <div *ngFor='let itemType of itemInventoryTypes'>
                 <mat-form-field>
                     <input matInput type='number' placeholder='{{itemType.label}}'
                         [(ngModel)]='caseInWork.object.inventory[itemType.value]'>
@@ -73,4 +89,8 @@
             </mat-select>
         </mat-form-field>
     </div>
+</div>
+
+<div>
+    <button (click)='generate()'>Générer le JSON</button>
 </div>
